@@ -1,5 +1,11 @@
 import { PlayerShip, Ship, ShipType } from "./ship";
-import { gridChars, makePositionFromId, shipNames } from "./utils";
+import {
+	getRandomElementFromArray,
+	gridChars,
+	gridNumbers,
+	makePositionFromId,
+	shipNames,
+} from "./utils";
 
 export type Position = `${string}-${number}`;
 type PossibleValue = "" | "hit" | "miss" | ShipType;
@@ -50,6 +56,9 @@ abstract class Grid {
 	isTaken(positions: Position[]): boolean {
 		return positions.some((position) => this.get(position));
 	}
+	get positionArray(): Position[] {
+		return Object.keys(this.state) as Position[];
+	}
 	drawShip(positions: Position[], shipType: ShipType): void {
 		//console.log(this.squares);
 		positions.forEach((position) => {
@@ -74,7 +83,97 @@ abstract class Grid {
 			this.squares.push(square);
 		}
 	}
+	takeShot(square: HTMLElement): void {
+		const currentPlayer = this.type === "computer" ? "player" : "computer";
+		const position = makePositionFromId(square.id);
+		const squareValue = this.get(position);
+
+		if (shipNames.includes(squareValue as ShipType)) {
+			const hitShip = this.ships.find(
+				(ship) => ship.type === squareValue
+			) as Ship;
+			hitShip.hit();
+			square.classList.add("boom");
+			this.set(position, "hit");
+
+			if (hitShip.isSunken) {
+				console.log(`${hitShip.type} is destroyed`);
+				this.rmeoveShip(hitShip);
+
+				if (!this.ships.length) {
+					alert(`${currentPlayer} won the game!`);
+					return;
+				}
+			}
+		} else {
+			square.classList.add("miss");
+			this.set(position, "miss");
+		}
+	}
+	rmeoveShip(ship: Ship): void {
+		this.ships = this.ships.filter((s) => s !== ship);
+	}
+
+	calculateOffset<T>(shipLength: number, array: T[], element: T): number {
+		let offset = 0;
+		const index = array.indexOf(element);
+		const endingPosition = index + shipLength;
+
+		if (endingPosition > array.length) {
+			offset = endingPosition - array.length;
+		}
+		return offset;
+	}
+	makeRandomShipPosition(ship: Ship): Position[] {
+		const shipSquares: Position[] = [];
+		const randomStartingPosition = getRandomElementFromArray(
+			this.positionArray
+		);
+		const positionChar = randomStartingPosition.split("-")[0];
+		const positionNumber = parseInt(randomStartingPosition.split("-")[1]);
+
+		const randomIsHorizontal = Boolean(Math.round(Math.random()));
+		ship.isHorizontal = randomIsHorizontal;
+
+		if (ship.isHorizontal) {
+			for (let i = 0; i < ship.length; i++) {
+				const horizontalOffset = this.calculateOffset(
+					ship.length,
+					gridNumbers,
+					positionNumber
+				);
+				const number = positionNumber + i - horizontalOffset;
+				shipSquares.push(`${positionChar}-${number}`);
+			}
+		} else {
+			for (let i = 0; i < ship.length; i++) {
+				const verticalOffset = this.calculateOffset(
+					ship.length,
+					gridChars,
+					positionChar
+				);
+				const charIndex = gridChars.indexOf(positionChar);
+				const char = gridChars[charIndex + i - verticalOffset];
+				shipSquares.push(`${char}-${positionNumber}`);
+			}
+		}
+		return shipSquares;
+	}
+
+	generateShipPlacement(ship: Ship): void {
+		let shipSquares = this.makeRandomShipPosition(ship);
+		let isTaken = this.isTaken(shipSquares);
+
+		while (isTaken) {
+			shipSquares = this.makeRandomShipPosition(ship);
+			isTaken = this.isTaken(shipSquares);
+		}
+
+		shipSquares.forEach((square) => this.set(square, ship.type));
+		this.drawShip(shipSquares, ship.type);
+	}
 }
+
 export class PlayerGrid extends Grid {
 	shipsToBePlaced: PlayerShip[] = [];
 	selectedShipPart: number = 0;
@@ -87,6 +186,7 @@ export class PlayerGrid extends Grid {
 		);
 		// this.shipToBePlaced = shipNames.map((shipName) => new PlayerShip(shipname));
 	}
+
 	addListeners(): void {
 		// Ship Listeners
 		this.shipsToBePlaced.forEach((ship) => {
@@ -162,17 +262,37 @@ export class PlayerGrid extends Grid {
 				shipSquares.push(`${char}-${positionNumber}`);
 			}
 		}
-		console.log(shipSquares);
+		//console.log(shipSquares);
 		const isTaken = this.isTaken(shipSquares);
 
 		if (!isTaken) {
 			shipSquares.forEach((square) => this.set(square, ship.type));
 			this.drawShip(shipSquares, ship.type);
+			this.ships.push(ship);
+			this.shipsToBePlaced = this.shipsToBePlaced.filter(
+				(s) => s !== ship
+			);
+			ship.element.remove();
+			//console.log(this.ships);
+			//console.log(this.shipsToBePlaced);
 		}
 	}
+	randomizeShips() {
+		this.shipsToBePlaced.forEach((ship) => {
+			this.generateShipPlacement(ship);
+			this.ships.push(ship);
+			this.shipsToBePlaced = this.shipsToBePlaced.filter(
+				(s) => s !== ship
+			);
+			ship.element.remove();
+		});
+	}
 }
+
 export class ComputerGrid extends Grid {
 	constructor() {
 		super("computer");
+
+		shipNames.forEach((shipName) => this.ships.push(new Ship(shipName)));
 	}
 }

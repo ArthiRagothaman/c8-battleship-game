@@ -103,3 +103,17 @@
 .carrier {
 	background-color: var(--carrier-color);
 }
+.boom::after,
+.miss::after {
+	content: "";
+	width: 2vmin;
+	height: 2vmin;
+	border-radius: 50%;
+}
+
+.boom::after {
+	background-color: red;
+}
+.miss::after {
+	background-color: white;
+}

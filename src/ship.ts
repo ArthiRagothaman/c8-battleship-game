@@ -4,12 +4,12 @@ export type ShipType =
 	| "cruiser"
 	| "battleship"
 	| "carrier";
-
-
 export class Ship {
 	type: ShipType;
 	length: number;
 	isHorizontal: boolean = true;
+	hits: number = 0;
+
 	constructor(type: ShipType) {
 		this.type = type;
 		switch (this.type) {
@@ -28,7 +28,17 @@ export class Ship {
 				break;
 		}
 	}
+	hit(): void {
+		if (this.hits < this.length) {
+			this.hits += 1;
+		}
+	}
+
+	get isSunken(): boolean {
+		return this.hits === this.length;
+	}
 }
+
 export class PlayerShip extends Ship {
 	element: HTMLElement;
 
