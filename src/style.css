@@ -88,3 +88,18 @@
 	--width: 1;
 	--height: 5;
 }
+.destroyer {
+	background-color: var(--destroyer-color);
+}
+.submarine {
+	background-color: var(--submarine-color);
+}
+.cruiser {
+	background-color: var(--cruiser-color);
+}
+.battleship {
+	background-color: var(--battleship-color);
+}
+.carrier {
+	background-color: var(--carrier-color);
+}
