@@ -1,23 +1,16 @@
-import './style.css'
-import typescriptLogo from './typescript.svg'
-import { setupCounter } from './counter'
+import "./style.css";
+import { PlayerGrid, ComputerGrid } from "./grid";
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
+const startButton = document.getElementById("start") as HTMLElement;
+const rotateButton = document.getElementById("rotate") as HTMLElement;
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+const playerGrid = new PlayerGrid();
+const computerGrid = new ComputerGrid();
+
+playerGrid.createBoard();
+computerGrid.createBoard();
+
+rotateButton.addEventListener("click", () => {
+	playerGrid.shipToBePlaced.forEach((ship) => ship.rotate());
+});
+playerGrid.addListeners();
