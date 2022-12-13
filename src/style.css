@@ -117,3 +117,35 @@
 .miss::after {
 	background-color: white;
 }
+.miss::before,
+.boom::before {
+	content: "";
+	position: absolute;
+	animation: hit 0.2s ease-out forwards;
+	border: 1vmin solid white;
+	border-radius: 50%;
+	width: 2vmin;
+	height: 2vmin;
+}
+.miss::before {
+	content: "";
+	position: absolute;
+	animation: hit 0.2s ease-out forwards;
+	border: 1vmin solid white;
+	border-radius: 50%;
+	width: 2vmin;
+	height: 2vmin;
+}
+@keyframes hit {
+	0% {
+		opacity: 1;
+		transform: scale(0);
+	}
+	95% {
+		opacity: 0;
+		transform: scale(4);
+	}
+	100% {
+		transform: scale(0);
+	}
+}

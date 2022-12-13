@@ -98,7 +98,7 @@ abstract class Grid {
 
 			if (hitShip.isSunken) {
 				console.log(`${hitShip.type} is destroyed`);
-				this.rmeoveShip(hitShip);
+				this.removeShip(hitShip);
 
 				if (!this.ships.length) {
 					alert(`${currentPlayer} won the game!`);
@@ -110,7 +110,7 @@ abstract class Grid {
 			this.set(position, "miss");
 		}
 	}
-	rmeoveShip(ship: Ship): void {
+	removeShip(ship: Ship): void {
 		this.ships = this.ships.filter((s) => s !== ship);
 	}
 
@@ -286,6 +286,19 @@ export class PlayerGrid extends Grid {
 			);
 			ship.element.remove();
 		});
+	}
+	randomFire(): HTMLElement {
+		let squareValue: PossibleValue;
+		let randomPosition = getRandomElementFromArray(this.positionArray);
+		squareValue = this.get(randomPosition);
+
+		while (squareValue === "hit" || squareValue === "miss") {
+			randomPosition = getRandomElementFromArray(this.positionArray);
+			squareValue = this.get(randomPosition);
+		}
+		return document.getElementById(
+			`${this.type}-${randomPosition}`
+		) as HTMLElement;
 	}
 }
 

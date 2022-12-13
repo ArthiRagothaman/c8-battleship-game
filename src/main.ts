@@ -29,11 +29,13 @@ computerGrid.ships.forEach((ship) => {
 	computerGrid.generateShipPlacement(ship);
 });
 
-startButton.addEventListener("clcik", () => {
+startButton.addEventListener("click", () => {
+	//console.log(playerGrid.shipsToBePlaced);
 	if (playerGrid.shipsToBePlaced.length > 0) {
 		alert("You need to place all of your ships to start the game");
 		return;
 	}
+	//console.log("game started");
 	computerGrid.element.addEventListener("click", fire);
 });
 function fire(event: Event) {
@@ -59,4 +61,10 @@ function fire(event: Event) {
 
 	computerGrid.takeShot(square);
 	playerTurn += 1;
+
+	setTimeout(() => {
+		const randomSquare = playerGrid.randomFire();
+		playerGrid.takeShot(randomSquare);
+		computerTurn += 1;
+	}, Math.random() * (3000 - 500) + 500);
 }
